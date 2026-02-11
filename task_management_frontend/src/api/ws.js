@@ -1,9 +1,30 @@
 /**
  * WebSocket helper for realtime task notifications.
- * Uses REACT_APP_WS_URL (example in .env: ws://host:3001/ws).
+ *
+ * Preferred:
+ *  - REACT_APP_WS_URL=ws(s)://host:port/ws/tasks
+ *
+ * Fallback behavior:
+ *  - If REACT_APP_WS_URL is not set, derive ws(s) base from REACT_APP_API_BASE / REACT_APP_BACKEND_URL
+ *    and connect to `/ws/tasks`.
  */
 
-const DEFAULT_WS_URL = process.env.REACT_APP_WS_URL || "ws://localhost:3001/ws";
+const API_BASE =
+  process.env.REACT_APP_API_BASE ||
+  process.env.REACT_APP_BACKEND_URL ||
+  "http://localhost:3001";
+
+function deriveWsUrlFromApiBase(apiBase) {
+  try {
+    const u = new URL(apiBase);
+    const wsProto = u.protocol === "https:" ? "wss:" : "ws:";
+    return `${wsProto}//${u.host}/ws/tasks`;
+  } catch {
+    return "ws://localhost:3001/ws/tasks";
+  }
+}
+
+const DEFAULT_WS_URL = process.env.REACT_APP_WS_URL || deriveWsUrlFromApiBase(API_BASE);
 
 // PUBLIC_INTERFACE
 export function connectRealtime({ token, onEvent, onStatus }) {

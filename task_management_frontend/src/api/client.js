@@ -74,14 +74,19 @@ export async function apiLogin({ email, password }) {
 
 // PUBLIC_INTERFACE
 export async function apiRegister({ name, email, password }) {
-  /** Attempt register. Expects backend to return created user or token. */
-  return apiRequest("/auth/register", { method: "POST", body: { name, email, password } });
+  /** Register user.
+   * Backend implements signup at POST /users with payload:
+   *   { email, full_name, password }
+   */
+  return apiRequest("/users", { method: "POST", body: { email, full_name: name, password } });
 }
 
 // PUBLIC_INTERFACE
 export async function apiMe(token) {
-  /** Get current user profile. */
-  return apiRequest("/auth/me", { token });
+  /** Get current user profile.
+   * Backend implements current user at GET /users/me
+   */
+  return apiRequest("/users/me", { token });
 }
 
 // ---- Tasks ----
